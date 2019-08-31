@@ -38,7 +38,7 @@ plot_UI <- function(id,data_list){
                              selectInput(ns("predictors_corplt"),"Select the predictors to drop",
                                          colnames(data_list$raw_data)[sapply(data_list$raw_data, is.numeric)],multiple = T),
                              
-                             selectInput(ns("corr_methods"),"Corrilation moethod to use",eval(formals(cor)$method)),
+                             selectInput(ns("corr_methods"),"Correlation moethod to use",eval(formals(cor)$method)),
                              
                              selectInput(ns("corr_use"), "Handle NA values",
                                          c("everything", "all.obs", "complete.obs", "na.or.complete", "pairwise.complete.obs")),
@@ -63,7 +63,7 @@ plot_UI <- function(id,data_list){
                              actionButton(ns("plot_corplt"),"Plot")
                            )),
                     column(9,
-                           wellPanel(textOutput(ns("test")),
+                           wellPanel(
                                      plotOutput(ns("plot_correlogram"),height = 750)))
            )
            
@@ -98,15 +98,11 @@ plot_ <- function(input, output, session, data_list){
   
   observeEvent(input$plot_ecf,{
     output$ecf_op_plot <- renderPlotly({
-      data_module$data %>% correlate(target = input$target_ecf) %>% 
+      df <- tbl_df(data_module$data)
+      df %>% correlate(target = input$target_ecf) %>% 
         plot_correlation_funnel(interactive = T, limits = input$zoom) 
     })
   })
-  # 
-  # updateSelectInput(session, "predictors_corplt",
-  #                   choices = colnames(data_list$raw_data)[sapply(data_list$raw_data, is.numeric)])
-  
-  output$test  <- renderText({is.null(input$predictors_corplt)})
   
   observeEvent(input$plot_corplt,{
     output$plot_correlogram <- renderPlot({
